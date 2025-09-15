@@ -1,7 +1,7 @@
 { pkgs, config, lib, ... }:
 
 {
-  home-manager.users.brian = import ./home.nix;
+  home-manager.users.david = import ./home.nix;
 
   nixpkgs.overlays = [ (self: super: {
     xorg = super.xorg.overrideScope (self': super': {
@@ -27,11 +27,11 @@
   networking.interfaces.usb0.useDHCP = true;
   networking.nameservers = [ "1.1.1.1" ];
 
-  services.logind.extraConfig = ''
-    HandlePowerKey=suspend
-    HandlePowerKeyLongPress=poweroff
-    IdleAction=suspend
-  '';
+  # services.logind.settings.Login = ''
+  #   HandlePowerKey=suspend
+  #   HandlePowerKeyLongPress=poweroff
+  #   IdleAction=suspend
+  # '';
 
   services.xserver = {
     enable = true;
@@ -42,7 +42,7 @@
       session = [ { manage = "window"; name = "xsession"; start = "false"; } ];
       autoLogin = {
         enable = true;
-        user = "brian";
+        user = "david";
       };
     };
     monitorSection = ''Option "Rotate" "left"'';
@@ -87,7 +87,7 @@
 
   networking.firewall.enable = false;
   services.connman.enable = true;
-  sound.enable = false;
+  # sound.enable = false;
   hardware.bluetooth.enable = true;
   hardware.pulseaudio.enable = false;
   services.pipewire.enable = false;
@@ -107,16 +107,16 @@
   ];
 
   users.users.root.password = "nixos";
-  users.users.brian = {
+  users.users.david = {
     isNormalUser = true;
     password = "nixos";
     extraGroups = [ "wheel" "video" ];
-    openssh.authorizedKeys.keys = [
-      (builtins.readFile (builtins.fetchurl {
-        url = "https://github.com/pythonpoet.keys";
-        sha256 = "";
-      }))
-    ];
+    # openssh.authorizedKeys.keys = [
+    #   (builtins.readFile (builtins.fetchurl {
+    #     url = "https://github.com/pythonpoet.keys";
+    #     sha256 = "sha256-2mK6nwjSVN2KCGenyo5FX6MG7QWhYOoaSj09szjCaEk=";
+    #   }))
+    # ];
   };
 
   system.stateVersion = "21.11";

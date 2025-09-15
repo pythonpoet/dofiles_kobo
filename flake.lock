@@ -7,11 +7,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1757809953,
-        "narHash": "sha256-29mlXbfAJhz9cWVrPP4STvVPDVZFCfCOmaIN5lFJa+Y=",
+        "lastModified": 1757920978,
+        "narHash": "sha256-Mv16aegXLulgyDunijP6SPFJNm8lSXb2w3Q0X+vZ9TY=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "17a10049486f6698fca32097d8f52c0c895542b0",
+        "rev": "11cc5449c50e0e5b785be3dfcb88245232633eb8",
         "type": "github"
       },
       "original": {
@@ -23,16 +23,15 @@
     "mobile-nixos": {
       "flake": false,
       "locked": {
-        "lastModified": 1675397203,
-        "narHash": "sha256-ooFkzSC1vg9VdC8iuT5LrUYCYWPAVaMTWSEJLsLpOeQ=",
-        "owner": "puffnfresh",
+        "lastModified": 1757174863,
+        "narHash": "sha256-PFu4TTHm/GSbrBBl6waxSNyQfpMoC4YkL1RMXkb2gyE=",
+        "owner": "mobile-nixos",
         "repo": "mobile-nixos",
-        "rev": "7445ee32e377961ac729b5be05a556a9d9458db6",
+        "rev": "c3164daaf62a81d0c4bfab67e6763a4319212557",
         "type": "github"
       },
       "original": {
-        "owner": "puffnfresh",
-        "ref": "hydra",
+        "owner": "mobile-nixos",
         "repo": "mobile-nixos",
         "type": "github"
       }
