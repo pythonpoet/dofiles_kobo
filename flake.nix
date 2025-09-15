@@ -61,7 +61,7 @@
         {
           kobo-clara-2e = toplevel "termly";
           oci-compute-instance = toplevel "tectonic";
-        };nix build .#hydraJobs.kobo-clara-2e --show-trace
+        };
 
     };
 }
