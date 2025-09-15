@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     mobile-nixos = {
-      url = "github:mobile-nixos/mobile-nixos";
+      url = "github:pythonpoet/mobile-nixos/main";
       flake = false;
     };
     home-manager = {
@@ -37,6 +37,7 @@
               {
                   nixpkgs.hostPlatform = "armv7l-linux";
                   nixpkgs.buildPlatform = "x86_64-linux";
+                  mobile.system.system = "armv7l-linux";
                 }
                           ./machines/kobo-clara-2e/configuration.nix
               (import "${mobile-nixos}/lib/configuration.nix" { device = "kobo-clara-2e"; })
@@ -60,6 +61,7 @@
         {
           kobo-clara-2e = toplevel "termly";
           oci-compute-instance = toplevel "tectonic";
-        };
+        };nix build .#hydraJobs.kobo-clara-2e --show-trace
+
     };
 }
