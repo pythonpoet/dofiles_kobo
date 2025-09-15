@@ -32,13 +32,13 @@
       nixosConfigurations = {
         termly =
           nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
+            system = "armv7l-linux";
             modules = [
-              {
-                  nixpkgs.hostPlatform = "armv7l-linux";
-                  nixpkgs.buildPlatform = "x86_64-linux";
-                  mobile.system.system = "armv7l-linux";
-                }
+              # {
+              #     nixpkgs.hostPlatform = "armv7l-linux";
+              #     nixpkgs.buildPlatform = "x86_64-linux";
+              #     mobile.system.system = "armv7l-linux";
+              #   }
                           ./machines/kobo-clara-2e/configuration.nix
               (import "${mobile-nixos}/lib/configuration.nix" { device = "kobo-clara-2e"; })
               home-manager.nixosModules.home-manager
