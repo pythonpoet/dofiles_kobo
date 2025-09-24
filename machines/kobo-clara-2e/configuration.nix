@@ -15,6 +15,10 @@
       });
     });
   }) ];
+  nixpkgs.hostPlatform = {
+  system = "armv7l-linux";
+};
+ #boot.binfmt.emulatedSystems = [ "armv7l-linux" ];
 
   mobile.enable = true;
   mobile.boot.stage-1.gui.enable = false;
