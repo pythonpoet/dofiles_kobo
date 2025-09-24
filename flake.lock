@@ -23,16 +23,15 @@
     "mobile-nixos": {
       "flake": false,
       "locked": {
-        "lastModified": 1757923770,
-        "narHash": "sha256-GjpuQDn+hbM1oM+azaB0SIU9ehgupWxky/6/REDpzDs=",
-        "owner": "pythonpoet",
+        "lastModified": 1757174863,
+        "narHash": "sha256-PFu4TTHm/GSbrBBl6waxSNyQfpMoC4YkL1RMXkb2gyE=",
+        "owner": "NixOS",
         "repo": "mobile-nixos",
-        "rev": "7383d266a3b272512edbde3e7fa33ce9f865a230",
+        "rev": "c3164daaf62a81d0c4bfab67e6763a4319212557",
         "type": "github"
       },
       "original": {
-        "owner": "pythonpoet",
-        "ref": "main",
+        "owner": "NixOS",
         "repo": "mobile-nixos",
         "type": "github"
       }
