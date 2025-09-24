@@ -71,15 +71,15 @@
   powerManagement.cpuFreqGovernor = "conservative"; # ondemand
 
   services.journald.extraConfig = "Storage=volatile";
-
+  
   nix.settings = {
     substituters = [
-      "https://cache.tectonic.brianmckenna.org/"
-      "http://cache.armv7l.xyz"
+      #"https://cache.tectonic.brianmckenna.org/"
+      #"http://arm.cachex.org"
     ];
     trusted-public-keys = [
-      "cache.armv7l.xyz-1:kBY/eGnBAYiqYfg0fy0inWhshUo+pGFM3Pj7kIkmlBk="
-      "cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk="
+      #"cache.armv7l.xyz-1:kBY/eGnBAYiqYfg0fy0inWhshUo+pGFM3Pj7kIkmlBk="
+      #"cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk="
     ];
     trusted-users = [ "@wheel" ];
   };
