@@ -21,6 +21,9 @@
         libconfig = prev.libconfig.overrideAttrs (oldAttrs: {
           doCheck = false;
         });
+        rhash = prev.rhash.overrideAttrs (oldAttrs: {
+          doCheck = false;
+        });
         mobile-nixos = mobile-nixos;
       };
       nixosConfigurations = {
