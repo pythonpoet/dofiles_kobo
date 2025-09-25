@@ -20,7 +20,9 @@
         termly =
           nixpkgs.lib.nixosSystem {
             system = "armv7l-linux";
-             overlays = [ self.overlays.disable-libconfig-check ];
+             specialArgs = {
+              pkgs = nixpkgs.legacyPackages.armv7l-linux.extend self.overlays.disable-libconfig-check;
+            };
             modules = [
               ./machines/kobo-clara-2e/configuration.nix
               (import "${mobile-nixos}/lib/configuration.nix" { device = "kobo-clara-2e"; })
