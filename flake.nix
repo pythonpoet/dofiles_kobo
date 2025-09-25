@@ -15,12 +15,20 @@
 
   outputs = { self, nixpkgs, mobile-nixos, home-manager }:
     rec {
-      
+      overlays.default = final: prev: {
+        # This overlay extends the previous package set (prev) with custom changes.
+        # It adds a patched version of libconfig and the mobile-nixos project itself.
+        libconfig = prev.libconfig.overrideAttrs (oldAttrs: {
+          doCheck = false;
+        });
+        mobile-nixos = mobile-nixos;
+      };
       nixosConfigurations = {
         termly =
           nixpkgs.lib.nixosSystem {
             system = "armv7l-linux";
-             
+            pkgs = nixpkgs.legacyPackages.armv7l-linux.extend self.overlays.default;
+            specialArgs = { inherit mobile-nixos; }; 
             modules = [
               ./machines/kobo-clara-2e/configuration.nix
               (import "${mobile-nixos}/lib/configuration.nix" { device = "kobo-clara-2e"; })
