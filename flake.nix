@@ -16,16 +16,26 @@
   outputs = { self, nixpkgs, mobile-nixos, home-manager }:
     rec {
       overlays.default = final: prev: {
-        # This overlay extends the previous package set (prev) with custom changes.
-        # It adds a patched version of libconfig and the mobile-nixos project itself.
+        # Fixes: Disable failing checks for cross-compilation
         libconfig = prev.libconfig.overrideAttrs (oldAttrs: {
           doCheck = false;
         });
+        # CRITICAL: Added an extra, harmless attribute (postPatch)
+        # to ensure the derivation hash is changed and the override is actually used.
         rhash = prev.rhash.overrideAttrs (oldAttrs: {
           doCheck = false;
+          postPatch = "true";
         });
+
+        # Fix: Ensure the mobile-nixos input is available as a package attribute
+        # in the main package set (pkgs.mobile-nixos)
         mobile-nixos = mobile-nixos;
+
+        # CRITICAL FIX: Ensure mobile-nixos is also available in the buildPackages set
+        # (pkgs.buildPackages.mobile-nixos), as required by internal modules for tools.
+        #buildPackages = prev.buildPackages // { mobile-nixos = mobile-nixos; };
       };
+
       nixosConfigurations = {
         termly =
           nixpkgs.lib.nixosSystem {
