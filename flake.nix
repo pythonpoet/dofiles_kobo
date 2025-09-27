@@ -22,18 +22,17 @@
         });
         # CRITICAL: Added an extra, harmless attribute (postPatch)
         # to ensure the derivation hash is changed and the override is actually used.
-        rhash = prev.rhash.overrideAttrs (oldAttrs: {
+        rhash = prev.rhash.overrideAttrs (old: {
           doCheck = false;
-          postPatch = "true";
+          checkPhase = "true"; # disable custom test runner
+          postPatch = (old.postPatch or "") + ''
+            echo "Skipping rhash tests for cross-compilation"
+          '';
         });
 
-        # Fix: Ensure the mobile-nixos input is available as a package attribute
-        # in the main package set (pkgs.mobile-nixos)
         mobile-nixos = mobile-nixos;
 
-        # CRITICAL FIX: Ensure mobile-nixos is also available in the buildPackages set
-        # (pkgs.buildPackages.mobile-nixos), as required by internal modules for tools.
-        #buildPackages = prev.buildPackages // { mobile-nixos = mobile-nixos; };
+
       };
 
       nixosConfigurations = {
