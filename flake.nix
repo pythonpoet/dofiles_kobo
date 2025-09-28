@@ -19,15 +19,17 @@
         # Fixes: Disable failing checks for cross-compilation
         libconfig = prev.libconfig.overrideAttrs (oldAttrs: {
           doCheck = false;
+          dontFixup = true; # Force a new hash
         });
         # CRITICAL: Added an extra, harmless attribute (postPatch)
         # to ensure the derivation hash is changed and the override is actually used.
         rhash = prev.rhash.overrideAttrs (old: {
           doCheck = false;
-          checkPhase = "true"; # disable custom test runner
-          postPatch = (old.postPatch or "") + ''
-            echo "Skipping rhash tests for cross-compilation"
-          '';
+          dontFixup = true; #
+          # checkPhase = "true"; # disable custom test runner
+          # postPatch = (old.postPatch or "") + ''
+          #   echo "Skipping rhash tests for cross-compilation"
+          # '';
         });
 
         mobile-nixos = mobile-nixos;
