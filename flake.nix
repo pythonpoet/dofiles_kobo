@@ -1,8 +1,8 @@
 {
-  description = "A complete, working NixOS flake for cross-compilation";
+  description = "puffnfresh's personal Nix Flake, mainly for Hydra";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11"; # Use a stable branch
     mobile-nixos = {
       url = "github:puffnfresh/mobile-nixos/hydra";
       flake = false;
@@ -13,65 +13,21 @@
     };
   };
 
-  outputs = { self, nixpkgs, mobile-nixos, home-manager, ... }@inputs:
-    let
-      # This is the "sledgehammer" overlay.
-      # It not only sets doCheck to false but also physically replaces the
-      # checkPhase with a command that does nothing. This cannot be ignored.
-      disable-checks-overlay = final: prev: {
-        rhash = prev.rhash.overrideAttrs (oldAttrs: {
-          doCheck = false;
-          checkPhase = ''
-            echo "Force-skipping checks for rhash"
-          '';
-        });
-
-        libconfig = prev.libconfig.overrideAttrs (oldAttrs: {
-          doCheck = false;
-          checkPhase = ''
-            echo "Force-skipping checks for libconfig"
-          '';
-        });
-      };
-
-    in
-    {
+  outputs = { self, nixpkgs, mobile-nixos, home-manager }:
+    rec {
       nixosConfigurations = {
         termly =
-          let
-            system = "armv7l-linux";
-            pkgs = import nixpkgs {
-              inherit system;
-              overlays = [ disable-checks-overlay ];
-              config.nixpkgs.crossSystem = {
-                system = "x86_64-linux"; # Your build machine's architecture
-              };
-            };
-          in
           nixpkgs.lib.nixosSystem {
-            inherit system pkgs;
-            specialArgs = { inherit mobile-nixos; };
+            system = "armv7l-linux";
             modules = [
               ./machines/kobo-clara-2e/configuration.nix
               (import "${mobile-nixos}/lib/configuration.nix" { device = "kobo-clara-2e"; })
               home-manager.nixosModules.home-manager
             ];
           };
-
         tectonic =
-          let
-            system = "aarch64-linux";
-            pkgs = import nixpkgs {
-              inherit system;
-              overlays = [ disable-checks-overlay ];
-              config.nixpkgs.crossSystem = {
-                system = "x86_64-linux";
-              };
-            };
-          in
           nixpkgs.lib.nixosSystem {
-            inherit system pkgs;
-            specialArgs = { inherit mobile-nixos; };
+            system = "aarch64-linux";
             modules = [
               ./machines/tectonic/configuration.nix
             ];
@@ -80,7 +36,8 @@
 
       hydraJobs =
         let
-          toplevel = name: self.nixosConfigurations."${name}".config.system.build.toplevel;
+          toplevel =
+            name: nixosConfigurations."${name}".config.system.build.toplevel;
         in
         {
           kobo-clara-2e = toplevel "termly";

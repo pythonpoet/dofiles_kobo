@@ -23,16 +23,16 @@
     "mobile-nixos": {
       "flake": false,
       "locked": {
-        "lastModified": 1757923770,
-        "narHash": "sha256-GjpuQDn+hbM1oM+azaB0SIU9ehgupWxky/6/REDpzDs=",
-        "owner": "pythonpoet",
+        "lastModified": 1675397203,
+        "narHash": "sha256-ooFkzSC1vg9VdC8iuT5LrUYCYWPAVaMTWSEJLsLpOeQ=",
+        "owner": "puffnfresh",
         "repo": "mobile-nixos",
-        "rev": "7383d266a3b272512edbde3e7fa33ce9f865a230",
+        "rev": "7445ee32e377961ac729b5be05a556a9d9458db6",
         "type": "github"
       },
       "original": {
-        "owner": "pythonpoet",
-        "ref": "main",
+        "owner": "puffnfresh",
+        "ref": "hydra",
         "repo": "mobile-nixos",
         "type": "github"
       }
