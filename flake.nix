@@ -1,10 +1,10 @@
 {
-  description = "puffnfresh's personal Nix Flake, mainly for Hydra";
+  description = "A complete, working NixOS flake for cross-compilation";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     mobile-nixos = {
-      url = "github:pythonpoet/mobile-nixos/main";
+      url = "github:puffnfresh/mobile-nixos/hydra";
       flake = false;
     };
     home-manager = {
@@ -13,48 +13,74 @@
     };
   };
 
-  outputs = { self, nixpkgs, mobile-nixos, home-manager }:
-    rec {
-      overlays.default = final: prev: {
-        # Fixes: Disable failing checks for cross-compilation
+  outputs = { self, nixpkgs, mobile-nixos, home-manager, ... }@inputs:
+    let
+      # This is the "sledgehammer" overlay.
+      # It not only sets doCheck to false but also physically replaces the
+      # checkPhase with a command that does nothing. This cannot be ignored.
+      disable-checks-overlay = final: prev: {
+        rhash = prev.rhash.overrideAttrs (oldAttrs: {
+          doCheck = false;
+          checkPhase = ''
+            echo "Force-skipping checks for rhash"
+          '';
+        });
+
         libconfig = prev.libconfig.overrideAttrs (oldAttrs: {
           doCheck = false;
-          dontFixup = true; # Force a new hash
+          checkPhase = ''
+            echo "Force-skipping checks for libconfig"
+          '';
         });
-        # CRITICAL: Added an extra, harmless attribute (postPatch)
-        # to ensure the derivation hash is changed and the override is actually used.
-        rhash = prev.rhash.overrideAttrs (old: {
-          doCheck = false;
-          dontFixup = true; #
-          # checkPhase = "true"; # disable custom test runner
-          # postPatch = (old.postPatch or "") + ''
-          #   echo "Skipping rhash tests for cross-compilation"
-          # '';
-        });
-
-        mobile-nixos = mobile-nixos;
-
-
       };
 
+    in
+    {
       nixosConfigurations = {
         termly =
-          nixpkgs.lib.nixosSystem {
+          let
             system = "armv7l-linux";
-            pkgs = nixpkgs.legacyPackages.armv7l-linux.extend self.overlays.default;
-            specialArgs = { inherit mobile-nixos; }; 
+            pkgs = import nixpkgs {
+              inherit system;
+              overlays = [ disable-checks-overlay ];
+              config.nixpkgs.crossSystem = {
+                system = "x86_64-linux"; # Your build machine's architecture
+              };
+            };
+          in
+          nixpkgs.lib.nixosSystem {
+            inherit system pkgs;
+            specialArgs = { inherit mobile-nixos; };
             modules = [
               ./machines/kobo-clara-2e/configuration.nix
               (import "${mobile-nixos}/lib/configuration.nix" { device = "kobo-clara-2e"; })
               home-manager.nixosModules.home-manager
             ];
           };
+
+        tectonic =
+          let
+            system = "aarch64-linux";
+            pkgs = import nixpkgs {
+              inherit system;
+              overlays = [ disable-checks-overlay ];
+              config.nixpkgs.crossSystem = {
+                system = "x86_64-linux";
+              };
+            };
+          in
+          nixpkgs.lib.nixosSystem {
+            inherit system pkgs;
+            specialArgs = { inherit mobile-nixos; };
+            modules = [
+              ./machines/tectonic/configuration.nix
+            ];
+          };
       };
 
       hydraJobs =
         let
-          toplevel =
-            name: nixosConfigurations."${name}".config.system.build.toplevel;
+          toplevel = name: self.nixosConfigurations."${name}".config.system.build.toplevel;
         in
         {
           kobo-clara-2e = toplevel "termly";
