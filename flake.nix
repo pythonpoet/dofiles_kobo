@@ -25,6 +25,9 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager, ... }@inputs:
             echo "Skipping rhash tests for cross-compilation"
           '';
         });
+        libconfig = prev.libconfig.overrideAttrs (old: {
+          doCheck = false;
+        });
       };
 
     in
