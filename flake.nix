@@ -18,27 +18,27 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager, ... }@inputs:
       # It not only sets doCheck to false but also physically replaces the
       # checkPhase with a command that does nothing. This cannot be ignored.
       disable-checks-overlay = final: prev: {
-        rhash = prev.rhash.overrideAttrs (old: {
-          doCheck = false;
-          checkTarget = null;  # prevents "make test-full" from being used
-          postPatch = (old.postPatch or "") + ''
-            echo "Skipping rhash tests for cross-compilation"
-          '';
-        });
-        libconfig = prev.libconfig.overrideAttrs (old: {
-          doCheck = false;
-          checkTarget = null;  # prevents "make test-full" from being used
-          postPatch = (old.postPatch or "") + ''
-            echo "Skipping rhash tests for cross-compilation"
-          '';
-        });
-        pcre = prev.pcre.overrideAttrs (old: {
-          doCheck = false;
-          checkTarget = null;  # prevents "make test-full" from being used
-          postPatch = (old.postPatch or "") + ''
-            echo "Skipping pcre tests for cross-compilation"
-          '';
-        });
+        # rhash = prev.rhash.overrideAttrs (old: {
+        #   doCheck = false;
+        #   checkTarget = null;  # prevents "make test-full" from being used
+        #   postPatch = (old.postPatch or "") + ''
+        #     echo "Skipping rhash tests for cross-compilation"
+        #   '';
+        # });
+        # libconfig = prev.libconfig.overrideAttrs (old: {
+        #   doCheck = false;
+        #   checkTarget = null;  # prevents "make test-full" from being used
+        #   postPatch = (old.postPatch or "") + ''
+        #     echo "Skipping rhash tests for cross-compilation"
+        #   '';
+        # });
+        # pcre = prev.pcre.overrideAttrs (old: {
+        #   doCheck = false;
+        #   checkTarget = null;  # prevents "make test-full" from being used
+        #   postPatch = (old.postPatch or "") + ''
+        #     echo "Skipping pcre tests for cross-compilation"
+        #   '';
+        # });
       };
 
     in
