@@ -32,6 +32,13 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager, ... }@inputs:
             echo "Skipping rhash tests for cross-compilation"
           '';
         });
+        pcre = prev.pcre.overrideAttrs (old: {
+          doCheck = false;
+          checkTarget = null;  # prevents "make test-full" from being used
+          postPatch = (old.postPatch or "") + ''
+            echo "Skipping pcre tests for cross-compilation"
+          '';
+        });
       };
 
     in
