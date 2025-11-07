@@ -25,19 +25,8 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager, ... }@inputs:
             ];
           };
         tectonic =
-          let
-            system = "aarch64-linux";
-            pkgs = import nixpkgs {
-              inherit system;
-              overlays = [ disable-checks-overlay ];
-              config.nixpkgs.crossSystem = {
-                system = "x86_64-linux";
-              };
-            };
-          in
           nixpkgs.lib.nixosSystem {
-            inherit system pkgs;
-            specialArgs = { inherit mobile-nixos; };
+            system = "aarch64-linux";
             modules = [
               ./machines/tectonic/configuration.nix
             ];
