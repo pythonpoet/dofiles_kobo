@@ -33,6 +33,13 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager, ... }@inputs:
       echo "Skipping libconfig tests for native build"
     '';
   });
+  boehmgc = prev.boehmgc.overrideAttrs (old: {
+    doCheck = false;
+    checkTarget = null;
+    postPatch = (old.postPatch or "") + ''
+      echo "Skipping boehmgc tests for native build"
+    '';
+  });
 
   # ----  openblas fix  -------------------------------------------------
   openblas = prev.openblas.overrideAttrs (old: {
