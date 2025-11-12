@@ -1,0 +1,12 @@
+--- a/Makefile.prebuild
++++ b/Makefile.prebuild
+@@ -97,7 +97,9 @@
+ # Helper binary that determines host CPU capabilities
+ GETARCH_OBJS = getarch.o cputype.o
+ 
++ifeq ($(findstring ARM,$(TARGET)),)
+ GETARCH_OBJS += cpuid.o
++endif
+ 
+ getarch: $(GETARCH_OBJS)
+ 	$(HOSTCC) $(HOST_CFLAGS) -o $@ $^
