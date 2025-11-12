@@ -12,95 +12,21 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-outputs = { self, nixpkgs, mobile-nixos, home-manager, ... }@inputs:
-    let
-      # This is the "sledgehammer" overlay.
-      # It not only sets doCheck to false but also physically replaces the
-      # checkPhase with a command that does nothing. This cannot be ignored.
-      disable-checks-overlay = final: prev: {
-  rhash = prev.rhash.overrideAttrs (old: {
-    doCheck = false;
-    checkTarget = null;
-    postPatch = (old.postPatch or "") + ''
-      echo "Skipping rhash tests for native build"
-    '';
-  });
-
-  libconfig = prev.libconfig.overrideAttrs (old: {
-    doCheck = false;
-    checkTarget = null;
-    postPatch = (old.postPatch or "") + ''
-      echo "Skipping libconfig tests for native build"
-    '';
-  });
-  boehmgc = prev.boehmgc.overrideAttrs (old: {
-    doCheck = false;
-    checkTarget = null;
-    postPatch = (old.postPatch or "") + ''
-      echo "Skipping boehmgc tests for native build"
-    '';
-  });
-
-  # ----  openblas fix  -------------------------------------------------
-  openblas = prev.openblas.overrideAttrs (old: {
-  patches = (old.patches or []) ++ [
-    (prev.writeText "openblas-arm-cpuid.patch" ''
-      --- a/Makefile.prebuild
-      +++ b/Makefile.prebuild
-      @@ -97,7 +97,9 @@
-       # Helper binary that determines host CPU capabilities
-       GETARCH_OBJS = getarch.o cputype.o
-
-      +ifeq (\$(findstring ARM,\$(TARGET)),)
-       GETARCH_OBJS += cpuid.o
-      +endif
-
-       getarch: $(GETARCH_OBJS)
-       \t$(HOSTCC) $(HOST_CFLAGS) -o $@ $^
-    '')
-  ];
-});
-  # ---------------------------------------------------------------------
-};
-
-    in
-    {
+outputs = { self, nixpkgs, mobile-nixos, home-manager }:
+    rec {
       nixosConfigurations = {
         termly =
-          let
-            system = "armv7l-linux";
-            pkgs = import nixpkgs {
-              inherit system;
-              overlays = [ disable-checks-overlay ];
-              config.nixpkgs.crossSystem = {
-                system = "x86_64-linux"; # Your build machine's architecture
-              };
-            };
-          in
           nixpkgs.lib.nixosSystem {
-            inherit system pkgs;
-            specialArgs = { inherit mobile-nixos; };
+            system = "armv7l-linux";
             modules = [
               ./machines/kobo-clara-2e/configuration.nix
               (import "${mobile-nixos}/lib/configuration.nix" { device = "kobo-clara-2e"; })
               home-manager.nixosModules.home-manager
             ];
           };
-
         tectonic =
-          let
-            system = "aarch64-linux";
-            pkgs = import nixpkgs {
-              inherit system;
-              overlays = [ disable-checks-overlay ];
-              config.nixpkgs.crossSystem = {
-                system = "x86_64-linux";
-              };
-            };
-          in
           nixpkgs.lib.nixosSystem {
-            inherit system pkgs;
-            specialArgs = { inherit mobile-nixos; };
+            system = "aarch64-linux";
             modules = [
               ./machines/tectonic/configuration.nix
             ];
@@ -109,7 +35,8 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager, ... }@inputs:
 
       hydraJobs =
         let
-          toplevel = name: self.nixosConfigurations."${name}".config.system.build.toplevel;
+          toplevel =
+            name: nixosConfigurations."${name}".config.system.build.toplevel;
         in
         {
           kobo-clara-2e = toplevel "termly";
