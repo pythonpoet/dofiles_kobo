@@ -36,10 +36,23 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager, ... }@inputs:
 
   # ----  openblas fix  -------------------------------------------------
   openblas = prev.openblas.overrideAttrs (old: {
-    patches = (old.patches or []) ++ [
-      ./openblas-arm-cpuid.patch   # same file we produced earlier
-    ];
-  });
+  patches = (old.patches or []) ++ [
+    (prev.writeText "openblas-arm-cpuid.patch" ''
+      --- a/Makefile.prebuild
+      +++ b/Makefile.prebuild
+      @@ -97,7 +97,9 @@
+       # Helper binary that determines host CPU capabilities
+       GETARCH_OBJS = getarch.o cputype.o
+
+      +ifeq (\$(findstring ARM,\$(TARGET)),)
+       GETARCH_OBJS += cpuid.o
+      +endif
+
+       getarch: $(GETARCH_OBJS)
+       \t$(HOSTCC) $(HOST_CFLAGS) -o $@ $^
+    '')
+  ];
+});
   # ---------------------------------------------------------------------
 };
 
