@@ -10,8 +10,8 @@ jobs:
       - name: Install QEMU armv7 binfmt
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y qemu-user-static binfmt-support
-          sudo update-binfmts --enable qemu-arm
+          sudo apt-get install -y qemu-user-static
+          cat /proc/sys/fs/binfmt_misc/qemu-arm
 
       - uses: cachix/install-nix-action@v27
         with:
