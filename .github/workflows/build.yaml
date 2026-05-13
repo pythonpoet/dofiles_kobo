@@ -1,11 +1,16 @@
-runs-on: ubuntu-24.04-arm
-steps:
-  - uses: actions/checkout@v4
-  - uses: cachix/install-nix-action@v27
-    with:
-      extra_nix_config: |
-        extra-platforms = armv7l-linux
-  - name: Register armv7l binfmt / compat
-    run: |
-      # arm64 kernels support armv7l natively — just needs the extra-platform hint
-      nix build .#packages.armv7l-linux.default
+name: Build kobo-clara-2e
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            extra-platforms = armv7l-linux aarch64-linux
+
+      - name: Build kobo-clara-2e
+        run: nix build .#hydraJobs.kobo-clara-2e
