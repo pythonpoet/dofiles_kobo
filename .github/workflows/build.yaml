@@ -1,16 +1,49 @@
-name: Build kobo-clara-2e
-on: [push, workflow_dispatch]
+name: "Build NixOS Image"
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: cachix/install-nix-action@v27
+      - name: Install Nix
+        uses: cachix/install-nix-action@v26
         with:
-          extra_nix_config: |
-            extra-platforms = armv7l-linux aarch64-linux
+          nix_path: nixpkgs=channel:nixos-unstable
 
-      - name: Build kobo-clara-2e
-        run: nix build .#hydraJobs.kobo-clara-2e
+      # This is the CRITICAL step for cross-compiling/emulating armv7
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm
+
+      - name: Configure Nix for ARMv7
+        run: |
+          echo "extra-platforms = armv7l-linux" >> /etc/nix/nix.conf
+          # Restart the nix-daemon to apply changes if necessary
+          # (usually handled by the action, but good to be explicit in some environments)
+
+      # Optional: Use Cachix to speed up future builds
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v14
+        with:
+          name: dotfilekoboc17cb2c57affa23f8de7.cachix.org-1:t7RUJJh7EQQTOh9p/dsrDvllJACMY6MXA5+8f/wouag= # Change to your cachix name
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
+      - name: Build SD Image
+        run: |
+          # Replace 'kobo' with the name of your configuration in flake.nix
+          nix build .#nixosConfigurations.kobo.config.system.build.sdImage --print-out-paths
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kobo-sd-image
+          path: result/sd-image/*.img*
