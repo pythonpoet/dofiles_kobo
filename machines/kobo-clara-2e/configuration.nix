@@ -6,7 +6,7 @@ let
   firmwareClara2e = pkgs.callPackage ./pkgs/firmware-clara2e.nix {};
 in
 {
-  home-manager.users.brian = import ./home.nix;
+  # home-manager.users.brian = import ./home.nix;
 
   boot.kernelPackages = pkgs.linuxPackagesFor linuxClara2e;
   hardware.firmware = [ firmwareClara2e ];
@@ -51,17 +51,8 @@ in
 
   services.journald.extraConfig = "Storage=volatile";
 
-  nix.settings = {
-    substituters = [
-      "https://cache.tectonic.brianmckenna.org/"
-    ];
-    trusted-public-keys = [
-      "cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk="
-    ];
-    trusted-users = [ "@wheel" ];
-  };
 
-  time.timeZone = "Australia/Hobart";
+  time.timeZone = "Europe/Amsterdam";
 
   services.openssh.enable = true;
   services.openssh.startWhenNeeded = true;
@@ -89,13 +80,11 @@ in
   ];
 
   users.users.root.password = "nixos";
-  users.users.brian = {
+  users.users.david = {
     isNormalUser = true;
     password = "nixos";
     extraGroups = [ "wheel" "video" "input" ];
-    openssh.authorizedKeys.keys = [
-      "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAvy1OOJY0ae+KJBgQ0Ii3NMv5YCfzRJ6Y5LUMNQ4TOcXccIWrbpc3VGifpASEIKnB2jbvjISQImapXKVFExjBEopPc+k83CehnXxsIZZ9jPFpLB28YZ6v0brSiP9DVRURd3SitJcRAQHtTAOC+nHbbTPz4nb44eGxUlCHt1XJPComUxwSihUSUTSZk+el+mdV+wiiYmZ9EboS/4QBn4q28uQHh6C4/XB59pPSmJPoQ47Ea85xBgL5DiAY7GUuyHGRqxIJ/ICOkdQdZKHzi+CmQJHnWE3aWjIKi/jaiOXhd//xpq4128qSryQSj6eWYCIuHfRtmDPOUKXlRpwpECK7Gw=="
-    ];
+
   };
 
   system.stateVersion = "21.11";
