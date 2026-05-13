@@ -19,21 +19,18 @@ jobs:
         with:
           extra_nix_config: |
             extra-platforms = armv7l-linux aarch64-linux
+            system-features = benchmark big-parallel nixos-test uid-range gccarch-armv7-a
 
-      - name: Debug and restart Nix daemon
+      - name: Restart Nix daemon
         run: |
-          echo "=== current nix.conf ==="
-          cat /etc/nix/nix.conf
-          echo "=== adding extra-platforms ==="
           sudo tee -a /etc/nix/nix.conf <<'EOF'
           extra-platforms = armv7l-linux aarch64-linux
+          system-features = benchmark big-parallel nixos-test uid-range gccarch-armv7-a
           EOF
-          echo "=== restarting daemon ==="
           sudo systemctl restart nix-daemon
           sleep 5
-          echo "=== verifying daemon config ==="
-          nix store ping
-          nix show-config | grep extra-platforms
+          nix store info
+          nix config show | grep -E 'extra-platforms|system-features'
 
       - uses: cachix/cachix-action@v15
         with:
