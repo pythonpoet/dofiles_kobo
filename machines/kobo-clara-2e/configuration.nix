@@ -12,7 +12,7 @@ in
   hardware.firmware = [ firmwareClara2e ];
 
   boot.loader.grub.enable = false;
-  boot.loader.generic-extlinux-compatible.enable = true;
+  boot.loader.generic-extlinux-compatible.enable = lib.mkForce true;
 
   system.build.uBoot = uBootClara2e;
 
