@@ -20,13 +20,20 @@ jobs:
           extra_nix_config: |
             extra-platforms = armv7l-linux aarch64-linux
 
-      - name: Restart Nix daemon with armv7l support
+      - name: Debug and restart Nix daemon
         run: |
-          echo "extra-platforms = armv7l-linux aarch64-linux" | sudo tee -a /etc/nix/nix.conf
+          echo "=== current nix.conf ==="
+          cat /etc/nix/nix.conf
+          echo "=== adding extra-platforms ==="
+          sudo tee -a /etc/nix/nix.conf <<'EOF'
+          extra-platforms = armv7l-linux aarch64-linux
+          EOF
+          echo "=== restarting daemon ==="
           sudo systemctl restart nix-daemon
-          # wait for daemon to come back up
-          sleep 3
+          sleep 5
+          echo "=== verifying daemon config ==="
           nix store ping
+          nix show-config | grep extra-platforms
 
       - uses: cachix/cachix-action@v15
         with:
