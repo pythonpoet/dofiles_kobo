@@ -1,67 +1,46 @@
 { pkgs, config, lib, ... }:
 
+let
+  uBootClara2e = pkgs.callPackage ./pkgs/u-boot-clara2e.nix {};
+  linuxClara2e = pkgs.callPackage ./pkgs/linux-clara2e.nix {};
+  firmwareClara2e = pkgs.callPackage ./pkgs/firmware-clara2e.nix {};
+in
 {
-  home-manager.users.david = import ./home.nix;
+  home-manager.users.brian = import ./home.nix;
 
-  nixpkgs.overlays = [ (self: super: {
-    xorg = super.xorg.overrideScope (self': super': {
-      xorgserver = super'.xorgserver.overrideAttrs (attrs: {
-        patches = attrs.patches ++ [
-          (pkgs.fetchpatch {
-            url = "https://github.com/mirror/xserver/commit/db9e9d45e8ba73510f11eb9e534c176102f6623e.patch";
-            sha256 = "sha256-Eg1Eqv1e9L/CCncvyAVSe18c3jNXNxPV36OJuwIC42Y=";
-          })
-        ];
-      });
-    });
-  }) ];
-  nixpkgs.hostPlatform = {
-  system = "armv7l-linux";
-};
- #boot.binfmt.emulatedSystems = [ "armv7l-linux" ];
+  boot.kernelPackages = pkgs.linuxPackagesFor linuxClara2e;
+  hardware.firmware = [ firmwareClara2e ];
 
-  mobile.enable = true;
-  mobile.boot.stage-1.gui.enable = false;
-  hardware.firmware = [ config.mobile.device.firmware ];
+  boot.loader.grub.enable = false;
+  boot.loader.generic-extlinux-compatible.enable = true;
 
-  system.build.initialRamdisk = lib.mkForce (pkgs.runCommandNoCC "nullInitialRamdisk" {} "touch $out");
+  system.build.uBoot = uBootClara2e;
 
   networking.hostName = "termly";
   networking.hostId = "0c5cb919";
   networking.interfaces.usb0.useDHCP = true;
   networking.nameservers = [ "1.1.1.1" ];
 
-  # services.logind.settings.Login = ''
-  #   HandlePowerKey=suspend
-  #   HandlePowerKeyLongPress=poweroff
-  #   IdleAction=suspend
-  # '';
+  zramSwap.enable = true;
+  boot.kernel.sysctl."vm.swappiness" = 100;
 
-  services.xserver = {
-    enable = true;
-    dpi = 256;
-    displayManager = {
-      lightdm.enable = true;
-      defaultSession = "none+xsession";
-      session = [ { manage = "window"; name = "xsession"; start = "false"; } ];
-      autoLogin = {
-        enable = true;
-        user = "david";
-      };
-    };
-    monitorSection = ''Option "Rotate" "left"'';
-    inputClassSections = [
-      ''
-        Identifier "Coordinate Transformation Matrix"
-        MatchIsTouchscreen "on"
-        MatchDevicePath "/dev/input/event*"
-        MatchDriver "libinput"
-        Option "CalibrationMatrix" "-1 0 1 0 1 0 0 0 1"
-      ''
-    ];
-    libinput.enable = true;
-    videoDrivers = [ "modesetting" ];
+  documentation.enable = false;
+  systemd.coredump.enable = false;
+  services.udisks2.enable = false;
+  services.accounts-daemon.enable = false;
+
+  services.logind.settings.Login = {
+    HandlePowerKey = "suspend";
+    HandlePowerKeyLongPress = "poweroff";
+    IdleAction = "suspend";
   };
+
+  services.getty.autologinUser = "brian";
+  environment.loginShellInit = ''
+    if [ "$(tty)" = "/dev/tty1" ]; then
+      exec koreader
+    fi
+  '';
 
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/44444444-4444-4444-8888-888888888888";
@@ -71,29 +50,27 @@
   powerManagement.cpuFreqGovernor = "conservative"; # ondemand
 
   services.journald.extraConfig = "Storage=volatile";
-  
+
   nix.settings = {
     substituters = [
-      #"https://cache.tectonic.brianmckenna.org/"
-      #"http://arm.cachex.org"
+      "https://cache.tectonic.brianmckenna.org/"
     ];
     trusted-public-keys = [
-      #"cache.armv7l.xyz-1:kBY/eGnBAYiqYfg0fy0inWhshUo+pGFM3Pj7kIkmlBk="
-      #"cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk="
+      "cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk="
     ];
     trusted-users = [ "@wheel" ];
   };
 
-  time.timeZone = "Europe/Zuerich";
+  time.timeZone = "Australia/Hobart";
 
   services.openssh.enable = true;
+  services.openssh.startWhenNeeded = true;
   services.openssh.settings.PermitRootLogin = "yes";
 
   networking.firewall.enable = false;
-  services.connman.enable = true;
-  # sound.enable = false;
+  networking.wireless.iwd.enable = true;
   hardware.bluetooth.enable = true;
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   services.pipewire.enable = false;
 
   systemd.services.btattach = {
@@ -108,19 +85,17 @@
   environment.systemPackages = [
     pkgs.tmux
     pkgs.htop
+    pkgs.koreader
   ];
 
   users.users.root.password = "nixos";
-  users.users.david = {
+  users.users.brian = {
     isNormalUser = true;
     password = "nixos";
-    extraGroups = [ "wheel" "video" ];
-    # openssh.authorizedKeys.keys = [
-    #   (builtins.readFile (builtins.fetchurl {
-    #     url = "https://github.com/pythonpoet.keys";
-    #     sha256 = "sha256-2mK6nwjSVN2KCGenyo5FX6MG7QWhYOoaSj09szjCaEk=";
-    #   }))
-    # ];
+    extraGroups = [ "wheel" "video" "input" ];
+    openssh.authorizedKeys.keys = [
+      "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAvy1OOJY0ae+KJBgQ0Ii3NMv5YCfzRJ6Y5LUMNQ4TOcXccIWrbpc3VGifpASEIKnB2jbvjISQImapXKVFExjBEopPc+k83CehnXxsIZZ9jPFpLB28YZ6v0brSiP9DVRURd3SitJcRAQHtTAOC+nHbbTPz4nb44eGxUlCHt1XJPComUxwSihUSUTSZk+el+mdV+wiiYmZ9EboS/4QBn4q28uQHh6C4/XB59pPSmJPoQ47Ea85xBgL5DiAY7GUuyHGRqxIJ/ICOkdQdZKHzi+CmQJHnWE3aWjIKi/jaiOXhd//xpq4128qSryQSj6eWYCIuHfRtmDPOUKXlRpwpECK7Gw=="
+    ];
   };
 
   system.stateVersion = "21.11";
