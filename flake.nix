@@ -2,7 +2,7 @@
   description = "puffnfresh's personal Nix Flake, mainly for Hydra";
 
   inputs = {
-    nixpkgs.url = "github:pythonpoet/nixpkgs/master"; # Use a stable branch
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable"; # Use a stable branch
     mobile-nixos = {
       url = "github:puffnfresh/mobile-nixos/hydra";
       flake = false;
