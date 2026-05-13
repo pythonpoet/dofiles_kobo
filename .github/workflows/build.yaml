@@ -1,27 +1,37 @@
-- uses: actions/checkout@v4
+name: Build kobo-clara-2e
+on: [push, workflow_dispatch]
 
-- name: Install QEMU armv7 binfmt
-  run: |
-    sudo apt-get update -q
-    sudo apt-get install -y qemu-user-static
-    echo ':qemu-arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-arm-static:F' \
-      | sudo tee /proc/sys/fs/binfmt_misc/register
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
 
-- uses: cachix/install-nix-action@v27
-  with:
-    extra_nix_config: |
-      extra-platforms = armv7l-linux aarch64-linux
+      - name: Install QEMU armv7 binfmt
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y qemu-user-static
+          echo ':qemu-arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-arm-static:F' \
+            | sudo tee /proc/sys/fs/binfmt_misc/register
+          cat /proc/sys/fs/binfmt_misc/qemu-arm
 
-- name: Restart Nix daemon with armv7l support
-  run: |
-    sudo mkdir -p /etc/nix
-    echo "extra-platforms = armv7l-linux aarch64-linux" | sudo tee -a /etc/nix/nix.conf
-    sudo systemctl restart nix-daemon
+      - uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            extra-platforms = armv7l-linux aarch64-linux
 
-- uses: cachix/cachix-action@v15
-  with:
-    name: dotfilekoboc17cb2c57affa23f8de7
-    authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Restart Nix daemon with armv7l support
+        run: |
+          echo "extra-platforms = armv7l-linux aarch64-linux" | sudo tee -a /etc/nix/nix.conf
+          sudo systemctl restart nix-daemon
+          # wait for daemon to come back up
+          sleep 3
+          nix store ping
 
-- name: Build kobo-clara-2e
-  run: nix build .#hydraJobs.kobo-clara-2e
+      - uses: cachix/cachix-action@v15
+        with:
+          name: dotfilekoboc17cb2c57affa23f8de7
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Build kobo-clara-2e
+        run: nix build .#hydraJobs.kobo-clara-2e
