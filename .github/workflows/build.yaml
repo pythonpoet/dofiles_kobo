@@ -14,6 +14,7 @@ jobs:
             system-features = benchmark big-parallel nixos-test uid-range gccarch-armv7-a
             substituters = https://cache.tectonic.brianmckenna.org/ https://cache.nixos.org/
             trusted-public-keys = cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+            always-allow-substitutes = true
 
       - uses: cachix/cachix-action@v15
         with:
