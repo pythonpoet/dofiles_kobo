@@ -38,7 +38,8 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Build kobo-clara-2e
-        run: nix build .#hydraJobs.kobo-clara-2e \
-              --substituters "https://cache.tectonic.brianmckenna.org/ https://cache.nixos.org" \
-              --trusted-public-keys "cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk=
-              cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" --always-allow-substitutes
+        run: |
+          nix build .#hydraJobs.kobo-clara-2e \
+            --always-allow-substitutes \
+            --substituters "https://cache.tectonic.brianmckenna.org/ https://cache.nixos.org/" \
+            --trusted-public-keys "cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
