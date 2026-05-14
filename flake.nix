@@ -19,6 +19,7 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager }:
           nixpkgs.lib.nixosSystem {
             system = "armv7l-linux";
             modules = [
+              { nixpkgs.buildPlatform = "aarch64-linux"; }
               ./machines/kobo-clara-2e/configuration.nix
               (import "${mobile-nixos}/lib/configuration.nix" { device = "kobo-clara-2e"; })
               home-manager.nixosModules.home-manager
