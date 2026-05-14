@@ -51,6 +51,16 @@ in
 
   services.journald.extraConfig = "Storage=volatile";
 
+    nix.settings = {
+    substituters = [
+      "https://cache.tectonic.brianmckenna.org/"
+    ];
+    trusted-public-keys = [
+      "cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk="
+    ];
+    trusted-users = [ "@wheel" ];
+  };
+
 
   time.timeZone = "Europe/Amsterdam";
 
