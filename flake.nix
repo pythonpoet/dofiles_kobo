@@ -23,6 +23,9 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager }:
                 nixpkgs.buildPlatform = "aarch64-linux";
                 nixpkgs.overlays = [
                   (final: prev: {
+                    aws-c-common = prev.aws-c-common.overrideAttrs (_: {
+                      doCheck = false;
+                    });
                     python313 = prev.python313.override {
                       packageOverrides = pyFinal: pyPrev: {
                         marshmallow = pyPrev.marshmallow.overridePythonAttrs (_: {
