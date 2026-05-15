@@ -29,6 +29,9 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager }:
                     libgit2 = prev.libgit2.overrideAttrs (_: {
                       doCheck = false;
                     });
+                    openblas = prev.openblas.overrideAttrs (old: {
+                      patches = (old.patches or []) ++ [ ./openblas-arm-cpuid.patch ];
+                    });
                     python313 = prev.python313.override {
                       packageOverrides = pyFinal: pyPrev: {
                         marshmallow = pyPrev.marshmallow.overridePythonAttrs (_: {
