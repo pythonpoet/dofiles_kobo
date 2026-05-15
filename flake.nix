@@ -30,7 +30,10 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager }:
                       doCheck = false;
                     });
                     openblas = prev.openblas.overrideAttrs (old: {
-                      patches = (old.patches or []) ++ [ ./openblas-arm-cpuid.patch ];
+                      postPatch = (old.postPatch or "") + ''
+                        sed -i '/^GETARCH_OBJS += cpuid\.o$/i ifeq ($(findstring ARM,$(TARGET)),)' Makefile.prebuild
+                        sed -i '/^GETARCH_OBJS += cpuid\.o$/a endif' Makefile.prebuild
+                      '';
                     });
                     python313 = prev.python313.override {
                       packageOverrides = pyFinal: pyPrev: {
