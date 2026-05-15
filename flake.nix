@@ -19,32 +19,6 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager }:
           nixpkgs.lib.nixosSystem {
             system = "armv7l-linux";
             modules = [
-              {
-                nixpkgs.buildPlatform = "aarch64-linux";
-                nixpkgs.overlays = [
-                  (final: prev: {
-                    aws-c-common = prev.aws-c-common.overrideAttrs (_: {
-                      doCheck = false;
-                    });
-                    libgit2 = prev.libgit2.overrideAttrs (_: {
-                      doCheck = false;
-                    });
-                    openblas = prev.openblas.overrideAttrs (old: {
-                      postPatch = (old.postPatch or "") + ''
-                        sed -i '/^GETARCH_OBJS += cpuid\.o$/i ifeq ($(findstring ARM,$(TARGET)),)' Makefile.prebuild
-                        sed -i '/^GETARCH_OBJS += cpuid\.o$/a endif' Makefile.prebuild
-                      '';
-                    });
-                    python313 = prev.python313.override {
-                      packageOverrides = pyFinal: pyPrev: {
-                        marshmallow = pyPrev.marshmallow.overridePythonAttrs (_: {
-                          doCheck = false;
-                        });
-                      };
-                    };
-                  })
-                ];
-              }
               ./machines/kobo-clara-2e/configuration.nix
               (import "${mobile-nixos}/lib/configuration.nix" { device = "kobo-clara-2e"; })
               home-manager.nixosModules.home-manager
