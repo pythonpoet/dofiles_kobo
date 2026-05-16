@@ -25,7 +25,11 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager }:
                     libgit2 = prev.libgit2.overrideAttrs (_: { doCheck = false; });
                     aws-c-common = prev.aws-c-common.overrideAttrs (_: { doCheck = false; });
                     openblas = prev.openblas.overrideAttrs (old: {
-                      cmakeFlags = (old.cmakeFlags or []) ++ [ "-DTARGET=GENERIC" ];
+                      cmakeFlags = (old.cmakeFlags or []) ++ [
+                        "-DTARGET=ARMV7"
+                        "-DDYNAMIC_ARCH=OFF"
+                        "-DNOFORTRAN=1"
+                      ];
                       doCheck = false;
                     });
                   })
