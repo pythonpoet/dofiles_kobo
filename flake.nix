@@ -24,6 +24,10 @@ outputs = { self, nixpkgs, mobile-nixos, home-manager }:
                   (final: prev: {
                     libgit2 = prev.libgit2.overrideAttrs (_: { doCheck = false; });
                     aws-c-common = prev.aws-c-common.overrideAttrs (_: { doCheck = false; });
+                    openblas = prev.openblas.overrideAttrs (old: {
+                      cmakeFlags = (old.cmakeFlags or []) ++ [ "-DTARGET=GENERIC" ];
+                      doCheck = false;
+                    });
                   })
                 ];
               }
