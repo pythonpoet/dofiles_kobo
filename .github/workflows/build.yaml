@@ -30,4 +30,4 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Build kobo-clara-2e
-        run: nix build .#hydraJobs.kobo-clara-2e
+        run: nix build .#hydraJobs.kobo-clara-2e -L --keep-going
