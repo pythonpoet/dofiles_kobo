@@ -16,9 +16,10 @@
       nixosConfigurations = {
         termly =
           nixpkgs.lib.nixosSystem {
-            system = "armv7l-linux";
             modules = [
               {
+                nixpkgs.buildPlatform = "aarch64-linux";
+                nixpkgs.hostPlatform = "armv7l-linux";
                 nixpkgs.overlays = [
                   (final: prev: {
                     libgit2 = prev.libgit2.overrideAttrs (_: { doCheck = false; });

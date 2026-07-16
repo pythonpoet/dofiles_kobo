@@ -3,32 +3,14 @@ on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install QEMU armv7 binfmt
-        run: |
-          sudo apt-get update -q
-          sudo apt-get install -y qemu-user-static
-
-          # Check if qemu-arm is already registered
-          if [ ! -e /proc/sys/fs/binfmt_misc/qemu-arm ]; then
-            echo "Registering qemu-arm binfmt..."
-            echo ':qemu-arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-arm-static:F' \
-              | sudo tee /proc/sys/fs/binfmt_misc/register
-          else
-            echo "qemu-arm already registered, skipping registration."
-          fi
-
-          # Output current status for verification
-          cat /proc/sys/fs/binfmt_misc/qemu-arm
 
       - uses: cachix/install-nix-action@v27
         with:
           extra_nix_config: |
-            extra-platforms = armv7l-linux aarch64-linux
-            system-features = benchmark big-parallel nixos-test uid-range gccarch-armv7-a
+            system-features = benchmark big-parallel nixos-test uid-range
             substituters = https://cache.tectonic.brianmckenna.org/ https://cache.nixos.org/
             trusted-public-keys = cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
             always-allow-substitutes = true
