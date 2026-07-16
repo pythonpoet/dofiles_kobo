@@ -16,10 +16,11 @@
       nixosConfigurations = {
         termly =
           nixpkgs.lib.nixosSystem {
+            # Build on the ARM64 CI runner; mobile-nixos cross-compiles to armv7l
+            # via nixpkgs.crossSystem (see mobile-nixos modules/system-target.nix).
+            system = "aarch64-linux";
             modules = [
               {
-                nixpkgs.buildPlatform = "aarch64-linux";
-                nixpkgs.hostPlatform = "armv7l-linux";
                 nixpkgs.overlays = [
                   (final: prev: {
                     libgit2 = prev.libgit2.overrideAttrs (_: { doCheck = false; });
