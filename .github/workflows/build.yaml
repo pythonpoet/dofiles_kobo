@@ -24,7 +24,7 @@ jobs:
         id: build
         run: |
           # Change your build step to target the image derivation
-          cd machines/kobo-clara-2e && nix build .#image -L --keep-going
+          cd machines/kobo-clara-2e && nix build .#hydraJobs.kobo-clara-2e -L --keep-going
           # Confirm result exists
           find result -type f -name "*.img" -ls
 
