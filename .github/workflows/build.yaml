@@ -23,7 +23,7 @@ jobs:
       - name: Build SD Image
         id: build
         run: |
-          nix build .#hydraJobs.kobo-clara-2e -L --keep-going
+          cd machines/kobo-clara-2e && nix build .#hydraJobs.kobo-clara-2e -L --keep-going
           # Confirm result exists
           find result -type f -name "*.img" -ls
 
