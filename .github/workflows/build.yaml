@@ -3,14 +3,22 @@ on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest # <-- Switched back to x86_64
+
     steps:
       - uses: actions/checkout@v4
+
+      # Keep QEMU so Nix can run cross-compiled introspection scripts seamlessly
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm
 
       - uses: cachix/install-nix-action@v27
         with:
           extra_nix_config: |
-            system-features = benchmark big-parallel nixos-test uid-range
+            extra-platforms = aarch64-linux armv7l-linux
+            system-features = benchmark big-parallel nixos-test uid-range gccarch-armv7-a
             substituters = https://cache.tectonic.brianmckenna.org/ https://cache.nixos.org/
             trusted-public-keys = cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
             always-allow-substitutes = true

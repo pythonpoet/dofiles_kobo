@@ -12,7 +12,7 @@
   outputs = { self, nixpkgs, home-manager }:
     let
       crossPkgs = import nixpkgs {
-        system = "aarch64-linux";
+        system = "x86_64-linux";
         crossSystem = nixpkgs.lib.systems.examples.armv7l-hf-multiplatform;
       };
     in {
@@ -20,7 +20,7 @@
         system = "armv7l-linux";
         modules = [
           {
-            nixpkgs.buildPlatform = "aarch64-linux";
+            nixpkgs.buildPlatform = "x86_64-linux";
             nixpkgs.hostPlatform = "armv7l-linux";
           }
           ./configuration.nix
@@ -32,6 +32,12 @@
         crossPkgs.callPackage ./pkgs/linux-clara2e.nix {};
 
       packages.aarch64-linux.uBoot =
+        crossPkgs.callPackage ./pkgs/u-boot-clara2e.nix {};
+
+      packages.x86_64-linux.kernel =
+        crossPkgs.callPackage ./pkgs/linux-clara2e.nix {};
+
+      packages.x86_64-linux.uBoot =
         crossPkgs.callPackage ./pkgs/u-boot-clara2e.nix {};
 
       packages.armv7l-linux.uBoot =
