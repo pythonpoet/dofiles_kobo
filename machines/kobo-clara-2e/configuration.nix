@@ -7,6 +7,17 @@ let
 in
 {
   # home-manager.users.brian = import ./home.nix;
+  boot.initrd.includeDefaultModules = false;
+
+    # Explicitly declare only the modules your Kobo actually needs to mount its rootfs.
+    # (You will likely need the specific eMMC/SD card drivers for your SoC here)
+    boot.initrd.availableKernelModules = [
+      "mmc_block"
+      # Add other required SoC-specific storage/pinctrl modules here
+    ];
+
+    # Clear any default kernel modules that might also fail
+    boot.kernelModules = [];
 
   boot.kernelPackages = pkgs.linuxPackagesFor linuxClara2e;
   hardware.firmware = [ firmwareClara2e ];
