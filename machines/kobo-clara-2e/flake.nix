@@ -19,6 +19,10 @@
       nixosConfigurations.termly = nixpkgs.lib.nixosSystem {
         system = "armv7l-linux";
         modules = [
+          {
+            nixpkgs.buildPlatform = "aarch64-linux";
+            nixpkgs.hostPlatform = "armv7l-linux";
+          }
           ./configuration.nix
           home-manager.nixosModules.home-manager
         ];
