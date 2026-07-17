@@ -30,7 +30,7 @@
       packages.aarch64-linux.uBoot =
         crossPkgs.callPackage ./pkgs/u-boot-clara2e.nix {};
 
-      packages.aarch64-linux.uBoot =
+      packages.armv7l-linux.uBoot =
         self.nixosConfigurations.termly.pkgs.callPackage ./pkgs/u-boot-clara2e.nix {};
 
       packages.armv7l-linux.image =
