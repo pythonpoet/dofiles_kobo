@@ -30,6 +30,11 @@
                         withOpenal   = false;
                         withPulseaudio = false;
                       };
+                      gst-plugins-bad = prev.gst-plugins-bad.override {
+                            enablePipewire = false;
+                            enableOpenAl = false;
+                            enablePulseAudio = false;
+                          };
                     })
                   ];
           }
