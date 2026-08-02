@@ -84,7 +84,7 @@ in
   hardware.bluetooth.enable = false;
   services.pulseaudio.enable = false;
   services.pipewire.enable = false;
-  services.modemmanager.enable = false;
+  #services.modemmanager.enable = false;
   hardware.alsa.enable = false;
 
 
