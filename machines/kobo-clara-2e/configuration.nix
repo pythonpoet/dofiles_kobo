@@ -16,8 +16,11 @@ in
       # Add other required SoC-specific storage/pinctrl modules here
     ];
 
-    # Clear any default kernel modules that might also fail
-    boot.kernelModules = [];
+  # Clear any default kernel modules that might also fail
+  boot.kernelModules = [];
+
+  environment.etc."sysctl.d/55-nixos-aslr-entropy.conf".enable = false;
+  boot.kernel.sysctl."vm.mmap_rnd_bits" = 16;
 
   boot.kernelPackages = pkgs.linuxPackagesFor linuxClara2e;
   hardware.firmware = [ firmwareClara2e ];
