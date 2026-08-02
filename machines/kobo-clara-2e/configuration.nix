@@ -85,11 +85,7 @@ in
   services.pulseaudio.enable = false;
   services.pipewire.enable = false;
   hardware.alsa.enable = false;
-  # Turn off modem management (and its libqmi dependency)
-  services.modemmanager.enable = false;
 
-  # If you are using NetworkManager, disable its modem plugin as well
-  networking.networkmanager.modemManager = false;
 
   systemd.services.btattach = {
     before = [ "bluetooth.service" ];
