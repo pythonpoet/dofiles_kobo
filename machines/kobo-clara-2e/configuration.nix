@@ -84,7 +84,7 @@ in
   hardware.bluetooth.enable = false;
   services.pulseaudio.enable = false;
   services.pipewire.enable = false;
-  sound.enable = false;
+  hardware.alsa.enable = false;
 
   systemd.services.btattach = {
     before = [ "bluetooth.service" ];
