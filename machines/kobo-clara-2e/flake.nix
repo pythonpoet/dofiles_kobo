@@ -25,29 +25,11 @@
             # Add the overlay here
             nixpkgs.overlays = [
               (final: prev: {
-                # Prevent ffmpeg from pulling pipewire/openal/pulse
-                ffmpeg = prev.ffmpeg.override {
-                  withPipewire = false;
-                  withOpenal   = false;
-                  withPulseaudio = false;
-                };
-
-                # Prevent gst-plugins-bad from pulling pipewire/openal
-                gst-plugins-bad = prev.gst-plugins-bad.override {
-                  # Correct flags (check nixpkgs for exact names)
-                  pipewireSupport = false;
-                  openalSupport = false;
+                sdl3 = prev.sdl3.override {
+                  pipewireSupport   = false;   # kills the direct edge
                   pulseaudioSupport = false;
+                  alsaSupport       = false;
                 };
-
-                # Override networkmanager to drop modem support
-                networkmanager = prev.networkmanager.override {
-                  modemManagerSupport = false;   # correct name in nixpkgs
-                };
-
-                # Completely remove ModemManager and libqmi (if nothing else needs them)
-                modemmanager = null;   # this prevents the package from being built
-                libqmi = null;         # optional, but safe if nothing else uses it
               })
             ];
           }
