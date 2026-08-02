@@ -25,11 +25,9 @@
             # Add the overlay here
             nixpkgs.overlays = [
               (final: prev: {
-                sdl3 = prev.sdl3.override {
-                  pipewireSupport   = false;   # kills the direct edge
-                  pulseaudioSupport = false;
-                  alsaSupport       = false;
-                };
+                libqmi = prev.libqmi.overrideAttrs (old: {
+                  depsBuildBuild = (old.depsBuildBuild or []) ++ [ final.pkgsBuildBuild.pkg-config ];
+                });
               })
             ];
           }
