@@ -22,6 +22,16 @@
           {
             nixpkgs.buildPlatform = "x86_64-linux";
             nixpkgs.hostPlatform = "armv7l-linux";
+            # Add the overlay here
+                  nixpkgs.overlays = [
+                    (final: prev: {
+                      ffmpeg = prev.ffmpeg.override {
+                        withPipewire = false;
+                        withOpenal   = false;
+                        withPulseaudio = false;
+                      };
+                    })
+                  ];
           }
           ./configuration.nix
           home-manager.nixosModules.home-manager

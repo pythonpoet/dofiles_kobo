@@ -81,9 +81,10 @@ in
 
   networking.firewall.enable = false;
   networking.wireless.iwd.enable = true;
-  hardware.bluetooth.enable = true;
+  hardware.bluetooth.enable = false;
   services.pulseaudio.enable = false;
   services.pipewire.enable = false;
+  sound.enable = false;
 
   systemd.services.btattach = {
     before = [ "bluetooth.service" ];
