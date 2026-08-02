@@ -5,6 +5,10 @@ jobs:
   build:
     runs-on: ubuntu-latest # <-- Switched back to x86_64
 
+    defaults:
+      run:
+        working-directory: machines/kobo-clara-2e
+
     steps:
       - uses: actions/checkout@v4
 
@@ -31,19 +35,23 @@ jobs:
       - name: Build SD Image
         id: build
         run: |
-          # Change your build step to target the image derivation
-          cd machines/kobo-clara-2e && nix build .#hydraJobs.kobo-clara-2e -L --keep-going
-          # Confirm result exists
-          find result -type f -name "*.img" -ls
+          # Build the cross-compiled SD image (single-file output)
+          nix build .#packages.armv7l-linux.image -L --keep-going
+          # Copy the raw image out of the store to our output dir
+          mkdir -p output
+          cp result output/kobo-clara-2e.img
+          ls -la output/
 
       - name: Compress Image
         id: compress
         run: |
-          # Find and compress the raw image
-          IMG_PATH=$(find result -name "*.img" -type f)
+          # Compress the raw image (parallel xz), pixz isn't preinstalled on
+          # ubuntu runners so we use the standard xz here.
+          IMG_PATH="$(pwd)/output/kobo-clara-2e.img"
           XZ_PATH="${IMG_PATH}.xz"
-          pixz -9 "$IMG_PATH"  # parallel xz (faster)
+          xz -9 "$IMG_PATH"
           echo "XZ_PATH=${XZ_PATH}" >> $GITHUB_OUTPUT
+          echo "IMG_PATH=${IMG_PATH}" >> $GITHUB_OUTPUT
 
       - name: Generate Checksum
         id: checksum
