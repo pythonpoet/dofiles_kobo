@@ -28,6 +28,8 @@
                 libqmi = prev.libqmi.overrideAttrs (old: {
                   depsBuildBuild = (old.depsBuildBuild or []) ++ [ final.pkgsBuildBuild.pkg-config ];
                 });
+                makeModulesClosure = args:
+                      prev.makeModulesClosure (args // { allowMissing = true; });
               })
             ];
           }
