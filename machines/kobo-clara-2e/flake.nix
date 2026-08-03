@@ -34,8 +34,21 @@
                 # the SD image. The virtiofsd daemon it launches runs on the build
                 # HOST (like qemu itself), so it must be built for the build
                 # platform — the target-armv7l virtiofsd fails because vm-memory 0.16
+                # vmTools spins up a QEMU VM off-host (via make-disk-image) to build
+                # the SD image. The virtiofsd daemon it launches runs on the build
+                # HOST (like qemu itself), so it must be built for the build
+                # platform — the target-armv7l virtiofsd fails because vm-memory 0.16
                 # only supports 64-bit targets.
-                vmTools = prev.vmTools.override { virtiofsd = final.buildPackages.virtiofsd; };
+                vmTools = prev.vmTools.override {
+                  virtiofsd = final.buildPackages.virtiofsd;
+                  # vmTools binds `qemu = buildPackages.qemu_kvm`, which on an x86
+                  # host ships only qemu-system-i386/x86_64. Our guest is armv7l,
+                  # so `qemu-common.qemuBinary` resolves to qemu-system-arm, which
+                  # qemu_kvm does not contain (exit 127). Use the full QEMU build
+                  # (all softmmu targets incl. arm) so the arm guest can be
+                  # TCG-emulated; x86 KVM can't accelerate an armv7 guest anyway.
+                  customQemu = "${final.buildPackages.qemu}/bin/qemu-system-arm -machine virt,accel=kvm:tcg -cpu max";
+                };
               })
             ];
           }
