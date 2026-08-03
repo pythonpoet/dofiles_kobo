@@ -30,25 +30,6 @@
                 });
                 makeModulesClosure = args:
                       prev.makeModulesClosure (args // { allowMissing = true; });
-                # vmTools spins up a QEMU VM off-host (via make-disk-image) to build
-                # the SD image. The virtiofsd daemon it launches runs on the build
-                # HOST (like qemu itself), so it must be built for the build
-                # platform — the target-armv7l virtiofsd fails because vm-memory 0.16
-                # vmTools spins up a QEMU VM off-host (via make-disk-image) to build
-                # the SD image. The virtiofsd daemon it launches runs on the build
-                # HOST (like qemu itself), so it must be built for the build
-                # platform — the target-armv7l virtiofsd fails because vm-memory 0.16
-                # only supports 64-bit targets.
-                vmTools = prev.vmTools.override {
-                  virtiofsd = final.buildPackages.virtiofsd;
-                  # vmTools binds `qemu = buildPackages.qemu_kvm`, which on an x86
-                  # host ships only qemu-system-i386/x86_64. Our guest is armv7l,
-                  # so `qemu-common.qemuBinary` resolves to qemu-system-arm, which
-                  # qemu_kvm does not contain (exit 127). Use the full QEMU build
-                  # (all softmmu targets incl. arm) so the arm guest can be
-                  # TCG-emulated; x86 KVM can't accelerate an armv7 guest anyway.
-                  customQemu = "${final.buildPackages.qemu}/bin/qemu-system-arm -machine virt,accel=kvm:tcg -cpu max";
-                };
               })
             ];
           }
@@ -74,22 +55,37 @@
 
       packages.armv7l-linux.image =
         let
-          targetPkgs = self.nixosConfigurations.termly.pkgs;
-          rootfs = import "${nixpkgs}/nixos/lib/make-disk-image.nix" {
-            inherit (self.nixosConfigurations.termly) config;
-            inherit (nixpkgs) lib;
-            pkgs = targetPkgs;
-            partitionTableType = "legacy";
-            format = "raw";
-            diskSize = "auto";
-            additionalSpace = "1024M";
+          cfg = self.nixosConfigurations.termly;
+          targetPkgs = cfg.pkgs;
+          # Root filesystem, built QEMU-free. make-ext4-fs (host-side
+          # mkfs.ext4 -d) + extlinux populator + dd of u-boot — no runInLinuxVM,
+          # which is broken for armv7l virtiofs/PCI (see below).
+          rootfs = targetPkgs.callPackage "${nixpkgs}/nixos/lib/make-ext4-fs.nix" {
+            storePaths = [ cfg.config.system.build.toplevel ];
+            volumeLabel = "nixos";
+            uuid = "44444444-4444-4444-8888-888888888888";
+            populateImageCommands = ''
+              mkdir -p ./files/boot
+              ${cfg.config.boot.loader.generic-extlinux-compatible.populateCmd} \
+                -c ${cfg.config.system.build.toplevel} -d ./files/boot
+            '';
           };
-        in targetPkgs.runCommand "termly.img" {} ''
-          cp ${rootfs}/nixos.img $out
-          chmod +w $out
-          dd if=${self.packages.armv7l-linux.uBoot}/u-boot.imx \
-             of=$out bs=1k seek=1 conv=notrunc
+        in
+        targetPkgs.runCommand "termly.img" { nativeBuildInputs = [ targetPkgs.util-linux targetPkgs.dosfstools ]; } ''
+          cp ${rootfs} rootfs.img
+          # Single MBR partition (type 83) for the rootfs; u-boot dd'd at 1 KiB.
+          img=$out
+          truncate -s $((4096 + $(stat -c %s rootfs.img) + 1024*1024)) $img
+          sfdisk --no-reread $img <<EOF
+            label: dos
+            unit: sectors
+            start=2048, type=83, bootable
+          EOF
+          partx $img -o START -n 1
+          dd if=rootfs.img of=$img seek=2048 conv=notrunc
+          dd if=${self.packages.armv7l-linux.uBoot}/u-boot-dtb.imx of=$img bs=1k seek=1 conv=notrunc
         '';
+
 
       hydraJobs.kobo-clara-2e =
         self.nixosConfigurations.termly.config.system.build.toplevel;

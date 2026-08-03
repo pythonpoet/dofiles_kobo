@@ -30,6 +30,7 @@ in
 
   system.build.uBoot = uBootClara2e;
 
+
   networking.hostName = "termly";
   networking.hostId = "0c5cb919";
   networking.interfaces.usb0.useDHCP = true;
