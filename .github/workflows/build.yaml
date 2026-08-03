@@ -60,10 +60,14 @@ jobs:
         id: checksum
         run: |
           XZ_PATH="${{ steps.compress.outputs.XZ_PATH }}"
-          sha256sum "$XZ_PATH" > sha256sums.txt
+          # Write into the working-directory and export an ABSOLUTE path: the
+          # release step globs `files` against GITHUB_WORKSPACE (repo root), not
+          # this step's working-directory, so a relative path won't match.
+          CHECKSUM="./sha256sums.txt"
+          sha256sum "$XZ_PATH" > "$CHECKSUM"
           echo "Checksum generated:"
-          cat sha256sums.txt
-          echo "CHECKSUM_FILE=sha256sums.txt" >> $GITHUB_OUTPUT
+          cat "$CHECKSUM"
+          echo "CHECKSUM_FILE=$(pwd -P)/sha256sums.txt" >> $GITHUB_OUTPUT
 
       - name: Upload Artifact (for debugging)
         uses: actions/upload-artifact@v4
@@ -76,8 +80,11 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          # GitHub forbids tags consisting solely of 40/64 hex chars; prefix the
+          # commit SHA so the tag is legal. run_id keeps it unique per run even
+          # if the same commit is pushed twice.
           name: "Kobo Clara HD Release - ${{ github.sha }}"
-          tag_name: ${{ github.sha }}
+          tag_name: build-${{ github.run_id }}
           draft: false
           prerelease: false
           body: |
