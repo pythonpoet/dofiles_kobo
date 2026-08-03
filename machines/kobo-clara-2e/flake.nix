@@ -30,6 +30,12 @@
                 });
                 makeModulesClosure = args:
                       prev.makeModulesClosure (args // { allowMissing = true; });
+                # vmTools spins up a QEMU VM off-host (via make-disk-image) to build
+                # the SD image. The virtiofsd daemon it launches runs on the build
+                # HOST (like qemu itself), so it must be built for the build
+                # platform — the target-armv7l virtiofsd fails because vm-memory 0.16
+                # only supports 64-bit targets.
+                vmTools = prev.vmTools.override { virtiofsd = final.buildPackages.virtiofsd; };
               })
             ];
           }
