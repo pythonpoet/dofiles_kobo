@@ -8,8 +8,8 @@
   programs.git = {
     enable = true;
     settings.user = {
-      name = "Brian McKenna";
-      email = "brian@brianmckenna.org";
+      name = "David Wild"
+      email = "32130052+pythonpoet@users.noreply.github.com";
     };
   };
 
@@ -18,7 +18,7 @@
     pkgs.brightnessctl
   ];
 
-  home.username = "brian";
-  home.homeDirectory = "/home/brian";
-  home.stateVersion = "22.05";
+  home.username = "david";
+  home.homeDirectory = "/home/david";
+  home.stateVersion = "26.05";
 }

@@ -50,7 +50,7 @@ in
     IdleAction = "suspend";
   };
 
-  services.getty.autologinUser = "brian";
+  services.getty.autologinUser = "david";
   environment.loginShellInit = ''
     if [ "$(tty)" = "/dev/tty1" ]; then
       exec koreader
@@ -114,6 +114,4 @@ in
     extraGroups = [ "wheel" "video" "input" ];
 
   };
-
-  system.stateVersion = "21.11";
 }
