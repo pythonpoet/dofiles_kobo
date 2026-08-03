@@ -22,7 +22,10 @@ jobs:
         with:
           extra_nix_config: |
             extra-platforms = aarch64-linux armv7l-linux
-            system-features = benchmark big-parallel nixos-test uid-range gccarch-armv7-a
+            # kvm is required: nixpkgs vmTools.runInLinuxVM hard-requires the
+            # `kvm` system feature to build the SD image via make-disk-image.
+            # ubuntu-latest github-hosted runners expose /dev/kvm.
+            system-features = benchmark big-parallel nixos-test uid-range kvm
             substituters = https://cache.tectonic.brianmckenna.org/ https://cache.nixos.org/
             trusted-public-keys = cache.tectonic.brianmckenna.org-1:JJgVJfP+41bQvmahw1MW8hIWkPTsaX2T+19rY5eOXPk= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
             always-allow-substitutes = true
